@@ -4,6 +4,7 @@ namespace Radiocubito\Matryoshka;
 
 use Exception;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
 
 class BladeDirective
 {
@@ -84,12 +85,14 @@ class BladeDirective
     
         // If we're dealing with a collection, we'll 
         // use a hashed version of its contents.
-        if ($item instanceof \Illuminate\Support\Collection) {
+        if ($item instanceof Collection) {
             return sprintf("%s/%s",
                 sha1($item),
                 $viewKey,
             );
         }
+
+        ob_end_clean();
 
         throw new Exception('Could not determine an appropriate cache key.');
     }
