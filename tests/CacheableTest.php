@@ -1,5 +1,7 @@
 <?php
 
+namespace Radiocubito\Matryoshka\Tests;
+
 class CacheableTest extends TestCase
 {
     /** @test */
@@ -8,7 +10,7 @@ class CacheableTest extends TestCase
         $model = $this->makePost();
 
         $this->assertEquals(
-            'Post/1-'.$model->updated_at->timestamp,
+            'Radiocubito\Matryoshka\Tests\Post/1-'.$model->updated_at->timestamp,
             $model->getCacheKey()
         );
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Laracasts\Matryoshka;
+namespace Radiocubito\Matryoshka;
 
 use Illuminate\Contracts\Cache\Repository as Cache;
 

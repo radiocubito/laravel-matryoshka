@@ -1,28 +1,55 @@
 {
-    "name": "laracasts/matryoshka",
+    "name": "radiocubito/laravel-matryoshka",
     "description": "Russian Doll Caching for Laravel.",
+    "keywords": [
+        "radiocubito",
+        "matryoshka"
+    ],
+    "homepage": "https://github.com/radiocubito/laravel-matryoshka",
     "license": "MIT",
-    "keywords": ["laravel", "cache"],
+    "type": "library",
     "authors": [
         {
-            "name": "Jeffrey Way",
-            "email": "jeffrey@laracasts.com"
+            "name": "Dario Oliver",
+            "email": "oliver@radiocubito.com",
+            "homepage": "https://radiocubito.com",
+            "role": "Developer"
         }
     ],
     "require": {
-        "illuminate/support": "^5.1"
+        "php": "^7.3",
+        "illuminate/support": "5.8.*",
+        "illuminate/database": "5.8.*",
+        "illuminate/cache": "5.8.*",
+        "illuminate/filesystem": "5.8.*"
+    },
+    "require-dev": {
+        "orchestra/testbench": "3.8.*",
+        "phpunit/phpunit": "^7.0"
     },
     "autoload": {
         "psr-4": {
-            "Laracasts\\Matryoshka\\": "src/"
+            "Radiocubito\\Matryoshka\\": "src"
         }
     },
     "autoload-dev": {
-        "classmap": ["tests/TestCase.php"]
+        "psr-4": {
+            "Radiocubito\\Matryoshka\\Tests\\": "tests"
+        }
     },
-    "require-dev": {
-        "phpunit/phpunit": "^5.2",
-        "illuminate/database": "^5.1",
-        "illuminate/cache": "^5.1"
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Radiocubito\\Matryoshka\\MatryoshkaServiceProvider"
+            ]
+        }
     }
 }

@@ -1,6 +1,10 @@
 <?php
 
-use Laracasts\Matryoshka\RussianCaching;
+namespace Radiocubito\Matryoshka\Tests;
+
+use Illuminate\Cache\ArrayStore;
+use Illuminate\Cache\Repository;
+use Radiocubito\Matryoshka\RussianCaching;
 
 class RussianCachingTest extends TestCase
 {
@@ -9,13 +13,15 @@ class RussianCachingTest extends TestCase
     {
         $post = $this->makePost();
     
-        $cache = new \Illuminate\Cache\Repository(
-            new \Illuminate\Cache\ArrayStore
+        $cache = new Repository(
+            new ArrayStore()
         );
 
         $cache = new RussianCaching($cache);
 
-        $cache->put($post, '<div>view fragment</div>');
+        $fragment = '<div>view fragment</div>';
+
+        $cache->put($post, $fragment);
 
         $this->assertTrue($cache->has($post->getCacheKey()));
         $this->assertTrue($cache->has($post));

@@ -1,10 +1,16 @@
 <?php
 
+namespace Radiocubito\Matryoshka\Tests;
+
 use Illuminate\Database\Capsule\Manager as DB;
 
-abstract class TestCase extends PHPUnit_Framework_TestCase
+use Illuminate\Database\Eloquent\Model;
+use PHPUnit\Framework\TestCase as BaseTestCase;
+use Radiocubito\Matryoshka\Cacheable;
+
+abstract class TestCase extends BaseTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->setUpDatabase();
         $this->migrateTables();
@@ -38,7 +44,7 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
     }
 }
 
-class Post extends \Illuminate\Database\Eloquent\Model
+class Post extends Model
 {
-    use Laracasts\Matryoshka\Cacheable;
+    use Cacheable;
 }

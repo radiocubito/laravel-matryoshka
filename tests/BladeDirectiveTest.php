@@ -1,18 +1,36 @@
 <?php
 
-use Laracasts\Matryoshka\RussianCaching;
-use Laracasts\Matryoshka\BladeDirective;
+namespace Radiocubito\Matryoshka\Tests;
+
+use Exception;
+use Illuminate\Cache\ArrayStore;
+use Illuminate\Cache\Repository;
+use Illuminate\Filesystem\Filesystem;
+use Radiocubito\Matryoshka\RussianCaching;
+use Radiocubito\Matryoshka\BladeDirective;
 
 class BladeDirectiveTest extends TestCase
 {
     protected $doll;
+
+    protected $compiledViewPath;
+
+    protected $viewKey;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->compiledViewPath = __FILE__;
+        $this->viewKey = sha1((new Filesystem())->lastModified($this->compiledViewPath));
+    }
 
     /** @test */
     public function it_sets_up_the_opening_cache_directive()
     {
         $directive = $this->createNewCacheDirective();
 
-        $isCached = $directive->setUp($post = $this->makePost());
+        $isCached = $directive->setUp($this->compiledViewPath, $post = $this->makePost());
 
         $this->assertFalse($isCached);
 
@@ -21,7 +39,7 @@ class BladeDirectiveTest extends TestCase
         $cachedFragment = $directive->tearDown();
 
         $this->assertEquals('<div>fragment</div>', $cachedFragment);
-        $this->assertTrue($this->doll->has($post));
+        $this->assertTrue($this->doll->has($post->getCacheKey() . '/' . $this->viewKey));
     }
 
     /** @test */
@@ -30,8 +48,8 @@ class BladeDirectiveTest extends TestCase
         $doll = $this->prophesize(RussianCaching::class);
         $directive = new BladeDirective($doll->reveal());
 
-        $doll->has('foo')->shouldBeCalled();
-        $directive->setUp('foo');
+        $doll->has('foo/' . $this->viewKey)->shouldBeCalled();
+        $directive->setUp($this->compiledViewPath, 'foo');
 
         ob_end_clean(); // Since we're not doing teardown.
     }
@@ -43,8 +61,8 @@ class BladeDirectiveTest extends TestCase
         $directive = new BladeDirective($doll->reveal());
         
         $collection = collect(['one', 'two']);
-        $doll->has(md5($collection))->shouldBeCalled();
-        $directive->setUp($collection);
+        $doll->has(sha1($collection) . '/' . $this->viewKey)->shouldBeCalled();
+        $directive->setUp($this->compiledViewPath, $collection);
 
         ob_end_clean(); // Since we're not doing teardown.
     }
@@ -56,8 +74,8 @@ class BladeDirectiveTest extends TestCase
         $directive = new BladeDirective($doll->reveal());
 
         $post = $this->makePost(); 
-        $doll->has('Post/1-' . $post->updated_at->timestamp)->shouldBeCalled();
-        $directive->setUp($post);
+        $doll->has('Radiocubito\Matryoshka\Tests\Post/1-' . $post->updated_at->timestamp . '/' . $this->viewKey)->shouldBeCalled();
+        $directive->setUp($this->compiledViewPath, $post);
 
         ob_end_clean(); // Since we're not doing teardown.
     }
@@ -68,28 +86,27 @@ class BladeDirectiveTest extends TestCase
         $doll = $this->prophesize(RussianCaching::class);
         $directive = new BladeDirective($doll->reveal());
 
-        $doll->has('override-key')->shouldBeCalled();
-        $directive->setUp($this->makePost(), 'override-key');
+        $doll->has('override-key' . '/' . $this->viewKey)->shouldBeCalled();
+        $directive->setUp($this->compiledViewPath, $this->makePost(), 'override-key');
 
         ob_end_clean(); // Since we're not doing teardown.
     }
 
 
-    /** 
-     * @test 
-     * @expectedException Exception
-     * */
+    /** @test */
     function it_throws_an_exception_if_it_cannot_determine_the_cache_key()
     {
+        $this->expectException(Exception::class);
+
         $directive = $this->createNewCacheDirective();
 
-        $directive->setUp(new UnCacheablePost);
+        $directive->setUp($this->compiledViewPath, new UnCacheablePost);
     }
 
     protected function createNewCacheDirective()
     {
-        $cache = new \Illuminate\Cache\Repository(
-            new \Illuminate\Cache\ArrayStore
+        $cache = new Repository(
+            new ArrayStore()
         );
 
         $this->doll = new RussianCaching($cache);
