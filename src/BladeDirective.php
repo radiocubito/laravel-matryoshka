@@ -5,6 +5,7 @@ namespace Radiocubito\Matryoshka;
 use Exception;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class BladeDirective
 {
@@ -34,10 +35,6 @@ class BladeDirective
 
     /**
      * Handle the @cache setup.
-     *
-     * @param string $compiledViewPath
-     * @param mixed       $model
-     * @param string|null $key
      */
     public function setUp(string $compiledViewPath, $model, string $key = null)
     {
@@ -79,6 +76,15 @@ class BladeDirective
         if (is_object($item) && method_exists($item, 'getCacheKey')) {
             return sprintf("%s/%s",
                 $item->getCacheKey(),
+                $viewKey,
+            );
+        }
+
+        // If we're dealing with a collection, we'll
+        // use a hashed version of its contents.
+        if ($item instanceof EloquentCollection) {
+            return sprintf("%s/%s",
+                sha1($item->pluck('updated_at', $item->getKey())),
                 $viewKey,
             );
         }
