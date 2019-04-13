@@ -60,7 +60,7 @@ class BladeDirective
      */
     protected function normalizeKey($compiledViewPath, $item, $key = null)
     {
-        $viewKey = sha1((new Filesystem())->lastModified($compiledViewPath));
+        $viewKey = sha1($compiledViewPath . (new Filesystem())->lastModified($compiledViewPath));
 
         // If the user wants to provide their own cache
         // key, we'll opt for that.

@@ -22,7 +22,7 @@ class BladeDirectiveTest extends TestCase
         parent::setUp();
 
         $this->compiledViewPath = __FILE__;
-        $this->viewKey = sha1((new Filesystem())->lastModified($this->compiledViewPath));
+        $this->viewKey = sha1($this->compiledViewPath . (new Filesystem())->lastModified($this->compiledViewPath));
     }
 
     /** @test */
